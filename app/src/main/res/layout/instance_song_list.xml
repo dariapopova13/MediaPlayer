@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/instance_song_list_layout_margin"
+    android:layout_marginStart="@dimen/instance_song_list_layout_margin"
+    android:layout_marginTop="@dimen/instance_song_list_layout_margin"
+    app:layout_goneMarginTop="@dimen/instance_song_list_layout_margin">
+
+
+    <ImageView
+        android:layout_centerVertical="true"
+        android:id="@+id/song_cover"
+        android:layout_width="@dimen/song_cover_size"
+        android:layout_height="@dimen/song_cover_size"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_music_player"/>
+
+    <TextView
+        android:id="@+id/song_title"
+        android:layout_width="215dp"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textSize="18sp"
+        tools:text="PaladioPaladioPaladioPaladioPaladioPaladioPaladioPaladioPaladioPaladioPaladio"
+        android:layout_alignTop="@+id/song_cover"
+        android:layout_alignLeft="@+id/song_artist"
+        android:layout_alignStart="@+id/song_artist"/>
+
+    <TextView
+        android:id="@+id/song_artist"
+        android:layout_width="215dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:lines="1"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:padding="2dp"
+        tools:text="David Garrett"
+        android:layout_marginLeft="11dp"
+        android:layout_marginStart="11dp"
+        android:layout_alignBottom="@+id/item_song_menu"
+        android:layout_toRightOf="@+id/song_cover"
+        android:layout_toEndOf="@+id/song_cover"/>
+
+
+    <TextView
+
+        android:id="@+id/song_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/song_title"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="12sp"
+        tools:text="3:30"/>
+
+    <TextView
+        android:id="@+id/item_song_menu"
+        android:padding="10dp"
+        android:paddingStart="20dp"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#8942;"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:textColor="@android:color/darker_gray"
+        android:layout_alignBaseline="@+id/song_duration"
+        android:layout_alignBottom="@+id/song_duration"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+</RelativeLayout>

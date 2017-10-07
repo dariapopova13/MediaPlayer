@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MediaPlayer</string>
+    <string name="no_repeat_message">No repeat</string>
+    <string name="repeat_one_message">Repeat one song</string>
+    <string name="repeat_all_message">Repeat all songs</string>
+    <string name="shuffe_is_off_message">Shuffle is off</string>
+    <string name="shuffe_is_on_message">Shuffle is on</string>
+</resources>

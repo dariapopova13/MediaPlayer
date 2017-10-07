@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="single_song_player_top_margin">20dp</dimen>
+    <dimen name="single_song_player_bottom_margin">15dp</dimen>
+    <dimen name="single_song_player_start_margin">15dp</dimen>
+    <dimen name="single_song_player_end_margin">20dp</dimen>
+    <dimen name="single_song_player_cover_size">300dp</dimen>
+    <dimen name="single_song_player_cover_margin">10dp</dimen>
+    <dimen name="single_song_player_seek_bar_margin">10dp</dimen>
+    <dimen name="song_cover_size">50dp</dimen>
+
+
+    <dimen name="instance_song_list_layout_margin">5dp</dimen>
+</resources>
