@@ -5,4 +5,7 @@
     <string name="repeat_all_message">Repeat all songs</string>
     <string name="shuffe_is_off_message">Shuffle is off</string>
     <string name="shuffe_is_on_message">Shuffle is on</string>
+    <string name="permission_button">Give permission</string>
+    <string name="permission_message">Storage permissions required for this app</string>
+    <string name="permission_denied_message">Visit settings to give required permissions</string>
 </resources>

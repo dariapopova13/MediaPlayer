@@ -33,7 +33,6 @@ public class SingleSongPlayerActivity extends AppCompatActivity
 
     //    public static final String SONG_EXTRA_NAME = "song";
     public static final String SONG_POSITION_EXTRA_NAME = "position";
-    private Intent playIntent;
     private SeekBar playerSeekBar;
     private TextView timePlaying;
     private TextView timeLeft;
@@ -55,6 +54,7 @@ public class SingleSongPlayerActivity extends AppCompatActivity
             MediaService.MusicBinder binder = (MediaService.MusicBinder) iBinder;
             mediaService = binder.getService();
             mediaService.setCurrentPosition(position);
+            mediaService.playSong(position);
             musicBound = true;
         }
 
@@ -67,13 +67,11 @@ public class SingleSongPlayerActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, MediaService.class);
-            bindService(playIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-            changePlayStop(true);
-        }
+        Intent intent = new Intent(this, MediaService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        changePlayStop(true);
     }
+
 
     private void changePlayStop(boolean isPlaying) {
         if (isPlaying) {

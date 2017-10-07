@@ -104,6 +104,7 @@ public class MediaService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        currentPosition = intent.getIntExtra("position", 0);
         initMediaPlayer();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -118,7 +119,6 @@ public class MediaService extends Service
     }
 
     private void initMediaPlayer() {
-        currentPosition = 0;
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnErrorListener(this);
@@ -131,6 +131,7 @@ public class MediaService extends Service
 
         setMediaPlayerData(DataUtils.songs.get(currentPosition).getData());
         mediaPlayer.prepareAsync();
+        start();
     }
 
     @Override
@@ -153,10 +154,10 @@ public class MediaService extends Service
         boolean shuffled = PreferencesUtils.isShuffled(this);
         boolean repeatAll = PreferencesUtils.isRepeatAll(this);
         if (shuffled) {
-            Random random = new Random(DataUtils.songs.size());
+            Random random = new Random();
             int randomPosition;
             do {
-                randomPosition = random.nextInt();
+                randomPosition = random.nextInt(DataUtils.songs.size());
             } while (randomPosition == currentPosition);
             currentPosition = randomPosition;
             setMediaPlayerData(DataUtils.songs.get(currentPosition).getData());
@@ -194,6 +195,11 @@ public class MediaService extends Service
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
 
+    }
+
+    public void playSong(int position) {
+        setMediaPlayerData(DataUtils.songs.get(position).getData());
+        start();
     }
 
     public class MusicBinder extends Binder {
