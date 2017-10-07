@@ -1,4 +1,4 @@
-package com.example.mediaplayer.content;
+package com.example.mediaplayer.utilities;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -16,25 +16,25 @@ import java.util.List;
  * Created by Daria Popova on 30.09.17.
  */
 
-public class SongContent {
+public final class DataUtils {
 
     public static List<Song> songs;
     private static Uri musicUri;
     private static ContentResolver musicResolver;
     private static Cursor musicCursor;
 
-    private SongContent(Context context) {
-        this(context.getContentResolver());
-    }
-
-    private SongContent(ContentResolver contentResolver) {
-        this.musicResolver = contentResolver;
-
-        musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        musicCursor = musicResolver.query(musicUri, null, selection, null, sortOrder);
-    }
+//    private DataUtils(Context context) {
+//        this(context.getContentResolver());
+//    }
+//
+//    private DataUtils(ContentResolver contentResolver) {
+//        this.musicResolver = contentResolver;
+//
+//        musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+//        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+//        musicCursor = musicResolver.query(musicUri, null, selection, null, sortOrder);
+//    }
 
 
     public static void initSongs(Context context) {
@@ -62,8 +62,6 @@ public class SongContent {
                     MediaStore.Audio.Media.DURATION);
             int dataColumn = musicCursor.getColumnIndex(
                     MediaStore.Audio.Media.DATA);
-//            MediaStore.Audio.Albums.
-//            int albumCoverColumn = musicCursor.getColumnCount()
             do {
                 Song song = new SongBuilder()
                         .setId(musicCursor.getLong(idColumn))

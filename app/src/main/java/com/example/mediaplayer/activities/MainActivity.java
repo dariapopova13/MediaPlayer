@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.adapters.SongsListAdapter;
-import com.example.mediaplayer.content.SongContent;
+import com.example.mediaplayer.utilities.DataUtils;
 import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.interfaces.RecycleViewListener;
 import com.example.mediaplayer.utilities.PermissionUtils;
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
         getPermission();
         setContentView(R.layout.activity_main);
 
-        SongContent.initSongs(this);
+        DataUtils.initSongs(this);
         initViews();
     }
 
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
 
     private void initViews() {
         songsRecycleView = (RecyclerView) findViewById(R.id.songs_recycle_view);
-        songsListAdapter = new SongsListAdapter(this, SongContent.songs, this);
+        songsListAdapter = new SongsListAdapter(this, DataUtils.songs, this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 
         songsRecycleView.setLayoutManager(linearLayoutManager);
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
 
     @Override
     public void recyclerViewItemClicked(View view, int position) {
-        Song song = SongContent.songs.get(position);
+        Song song = DataUtils.songs.get(position);
         Intent intent = new Intent(this, SingleSongPlayerActivity.class);
         intent.putExtra(SingleSongPlayerActivity.SONG_EXTRA_NAME, song);
         startActivity(intent);

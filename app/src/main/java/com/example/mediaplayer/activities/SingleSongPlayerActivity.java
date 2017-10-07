@@ -53,7 +53,6 @@ public class SingleSongPlayerActivity extends AppCompatActivity
 
         }
     };
-    private MediaController mediaController;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,10 +63,7 @@ public class SingleSongPlayerActivity extends AppCompatActivity
         if (song == null)
             finish();
 
-        mediaController = (MediaController) findViewById(R.id.media_controller);
-
-        mediaController.show();
-//        initViews();
+        initViews();
     }
 
     private void cancelToast() {
@@ -75,28 +71,28 @@ public class SingleSongPlayerActivity extends AppCompatActivity
             toast.cancel();
     }
 
-//    private void initViews() {
-//        playerSeekBar = (SeekBar) findViewById(R.id.single_song_player_seek_bar_controller);
-//        timePlaying = (TextView) findViewById(R.id.single_song_player_time_playing);
-//        timeLeft = (TextView) findViewById(R.id.single_song_player_time_left);
-//
-//        playStopImageView = (ImageView) findViewById(R.id.single_song_player_controller_play_stop_action);
-//        playStopImageView.setOnClickListener(this);
-//
-//        nextSongImageView = (ImageView) findViewById(R.id.single_song_player_controller_next_action);
-//        nextSongImageView.setOnClickListener(this);
-//
-//        previousSongImageView = (ImageView) findViewById(R.id.single_song_player_controller_previous_action);
-//        previousSongImageView.setOnClickListener(this);
-//
-//        repeatImageView = (ImageView) findViewById(R.id.single_song_player_controller_repeat_action);
-//        repeatImageView.setOnClickListener(this);
-//
-//        shuffleImageView = (ImageView) findViewById(R.id.single_song_player_controller_shuffle_action);
-//        shuffleImageView.setOnClickListener(this);
-//
-//        applyPreferences();
-//    }
+    private void initViews() {
+        playerSeekBar = (SeekBar) findViewById(R.id.single_song_player_seek_bar_controller);
+        timePlaying = (TextView) findViewById(R.id.single_song_player_time_playing);
+        timeLeft = (TextView) findViewById(R.id.single_song_player_time_left);
+
+        playStopImageView = (ImageView) findViewById(R.id.single_song_player_controller_play_stop_action);
+        playStopImageView.setOnClickListener(this);
+
+        nextSongImageView = (ImageView) findViewById(R.id.single_song_player_controller_next_action);
+        nextSongImageView.setOnClickListener(this);
+
+        previousSongImageView = (ImageView) findViewById(R.id.single_song_player_controller_previous_action);
+        previousSongImageView.setOnClickListener(this);
+
+        repeatImageView = (ImageView) findViewById(R.id.single_song_player_controller_repeat_action);
+        repeatImageView.setOnClickListener(this);
+
+        shuffleImageView = (ImageView) findViewById(R.id.single_song_player_controller_shuffle_action);
+        shuffleImageView.setOnClickListener(this);
+
+        applyPreferences();
+    }
 
     private void applyPreferences() {
         setRepeat();
