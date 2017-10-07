@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
     private RecyclerView songsRecycleView;
     private SongsListAdapter songsListAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
     public void recyclerViewItemClicked(View view, int position) {
         Song song = DataUtils.songs.get(position);
         Intent intent = new Intent(this, SingleSongPlayerActivity.class);
-        intent.putExtra(SingleSongPlayerActivity.SONG_EXTRA_NAME, song);
+        intent.putExtra(SingleSongPlayerActivity.SONG_POSITION_EXTRA_NAME, position);
         startActivity(intent);
     }
 }

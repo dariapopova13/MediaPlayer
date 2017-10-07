@@ -1,6 +1,8 @@
 package com.example.mediaplayer.activities;
 
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -10,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.data.enums.RepeatTypeEnum;
 import com.example.mediaplayer.data.enums.ShuffleEnum;
 import com.example.mediaplayer.services.MediaService;
+import com.example.mediaplayer.utilities.DataUtils;
 import com.example.mediaplayer.utilities.PreferencesUtils;
 
 /**
@@ -27,9 +29,11 @@ import com.example.mediaplayer.utilities.PreferencesUtils;
  */
 
 public class SingleSongPlayerActivity extends AppCompatActivity
-        implements View.OnClickListener, MediaController.MediaPlayerControl{
+        implements View.OnClickListener {
 
-    public static final String SONG_EXTRA_NAME = "song";
+    //    public static final String SONG_EXTRA_NAME = "song";
+    public static final String SONG_POSITION_EXTRA_NAME = "position";
+    private Intent playIntent;
     private SeekBar playerSeekBar;
     private TextView timePlaying;
     private TextView timeLeft;
@@ -39,31 +43,60 @@ public class SingleSongPlayerActivity extends AppCompatActivity
     private ImageView repeatImageView;
     private ImageView shuffleImageView;
     private Song song;
+    private int position;
     private MediaService mediaService;
     private boolean musicBound = false;
     private Toast toast;
+    private TextView songArtist;
+    private TextView songTitle;
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-
+            MediaService.MusicBinder binder = (MediaService.MusicBinder) iBinder;
+            mediaService = binder.getService();
+            mediaService.setCurrentPosition(position);
+            musicBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            musicBound = false;
         }
     };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (playIntent == null) {
+            playIntent = new Intent(this, MediaService.class);
+            bindService(playIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+            changePlayStop(true);
+        }
+    }
+
+    private void changePlayStop(boolean isPlaying) {
+        if (isPlaying) {
+            playStopImageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_stop_black_100dp));
+        } else
+            playStopImageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_play_arrow_black_100dp));
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_song_player);
 
-        song = getIntent().getParcelableExtra(SONG_EXTRA_NAME);
-        if (song == null)
-            finish();
-
+        position = getIntent().getIntExtra(SONG_POSITION_EXTRA_NAME, 0);
+        song = DataUtils.songs.get(position);
         initViews();
+        applyPreferences();
+        setSongInfo();
+    }
+
+    private void setSongInfo() {
+        songTitle.setText(song.getTitle());
+        songArtist.setText(song.getArtist());
     }
 
     private void cancelToast() {
@@ -90,8 +123,8 @@ public class SingleSongPlayerActivity extends AppCompatActivity
 
         shuffleImageView = (ImageView) findViewById(R.id.single_song_player_controller_shuffle_action);
         shuffleImageView.setOnClickListener(this);
-
-        applyPreferences();
+        songTitle = (TextView) findViewById(R.id.single_song_player_info_song_title);
+        songArtist = (TextView) findViewById(R.id.single_song_player_info_song_artist);
     }
 
     private void applyPreferences() {
@@ -147,58 +180,5 @@ public class SingleSongPlayerActivity extends AppCompatActivity
         showToast(isShuffled.getMessageId());
     }
 
-    @Override
-    public void start() {
 
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public int getDuration() {
-        return 0;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return 0;
-    }
-
-    @Override
-    public void seekTo(int i) {
-
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return false;
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public boolean canPause() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
 }
