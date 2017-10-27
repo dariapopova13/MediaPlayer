@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +22,10 @@ import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.data.enums.RepeatTypeEnum;
 import com.example.mediaplayer.data.enums.ShuffleEnum;
 import com.example.mediaplayer.services.MediaService;
-import com.example.mediaplayer.utilities.DataUtils;
 import com.example.mediaplayer.utilities.PreferencesUtils;
+import com.example.mediaplayer.utilities.StorageUtils;
+
+import java.util.List;
 
 /**
  * Created by Daria Popova on 07.10.17.
@@ -31,8 +34,10 @@ import com.example.mediaplayer.utilities.PreferencesUtils;
 public class SingleSongPlayerActivity extends AppCompatActivity
         implements View.OnClickListener {
 
-    //    public static final String SONG_EXTRA_NAME = "song";
+
     public static final String SONG_POSITION_EXTRA_NAME = "position";
+    public static final String BROADCAST_PLAY_NEW_AUDIO = "com.example.mediaplayer.PLAY_NEW_AUDIO_ACTION";
+    private static final String SERVICE_STATUS_BOUND_ARG = "serviceStatus";
     private SeekBar playerSeekBar;
     private TextView timePlaying;
     private TextView timeLeft;
@@ -44,7 +49,7 @@ public class SingleSongPlayerActivity extends AppCompatActivity
     private Song song;
     private int position;
     private MediaService mediaService;
-    private boolean musicBound = false;
+    private boolean serviceBound = false;
     private Toast toast;
     private TextView songArtist;
     private TextView songTitle;
@@ -54,24 +59,15 @@ public class SingleSongPlayerActivity extends AppCompatActivity
             MediaService.MusicBinder binder = (MediaService.MusicBinder) iBinder;
             mediaService = binder.getService();
             mediaService.setCurrentPosition(position);
-            mediaService.playSong(position);
-            musicBound = true;
+            mediaService.setCurrentPosition(position);
+            serviceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            musicBound = false;
+            serviceBound = false;
         }
     };
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, MediaService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        changePlayStop(true);
-    }
-
 
     private void changePlayStop(boolean isPlaying) {
         if (isPlaying) {
@@ -81,12 +77,55 @@ public class SingleSongPlayerActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (serviceBound) {
+            unbindService(serviceConnection);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        playMusic();
+    }
+
+    private void playMusic() {
+        if (!serviceBound) {
+
+            Intent intent = new Intent(SingleSongPlayerActivity.this, MediaService.class);
+            intent.putExtra(MediaService.POSITION_ARG_NAME, position);
+            startService(intent);
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        } else {
+//            Intent broadCastIntent = new Intent(BROADCAST_PLAY_NEW_AUDIO);
+//            sendBroadcast(broadCastIntent);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putBoolean(SERVICE_STATUS_BOUND_ARG, serviceBound);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        serviceBound = savedInstanceState.getBoolean(SERVICE_STATUS_BOUND_ARG);
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_song_player);
 
         position = getIntent().getIntExtra(SONG_POSITION_EXTRA_NAME, 0);
-        song = DataUtils.songs.get(position);
+        List<Song> songs = StorageUtils.getSongsData(this);
+        if (songs == null) {
+            finish();
+        }
+        song = songs.get(position);
         initViews();
         applyPreferences();
         setSongInfo();

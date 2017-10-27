@@ -15,10 +15,9 @@ import android.widget.Toast;
 
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.adapters.SongsListAdapter;
-import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.interfaces.RecycleViewListener;
-import com.example.mediaplayer.utilities.DataUtils;
 import com.example.mediaplayer.utilities.PermissionUtils;
+import com.example.mediaplayer.utilities.StorageUtils;
 
 public class MainActivity extends AppCompatActivity implements RecycleViewListener {
 
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
         setContentView(R.layout.activity_main);
 
         if (getPermission()) {
-            DataUtils.initSongs(this);
+            StorageUtils.storeData(this);
             initViews();
         }
     }
@@ -42,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
         switch (requestCode) {
             case PermissionUtils.MULTIPLE_PERMISSION_REQUEST: {
                 if (PermissionUtils.verifyPermissions(grantResults)) {
-                    DataUtils.initSongs(this);
+                    StorageUtils.storeData(this);
                     initViews();
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -85,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
 
     private void initViews() {
         songsRecycleView = (RecyclerView) findViewById(R.id.songs_recycle_view);
-        songsListAdapter = new SongsListAdapter(this, DataUtils.songs, this);
+        songsListAdapter = new SongsListAdapter(this, StorageUtils.getSongsData(this), this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 
         songsRecycleView.setLayoutManager(linearLayoutManager);
@@ -94,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements RecycleViewListen
 
     @Override
     public void recyclerViewItemClicked(View view, int position) {
-        Song song = DataUtils.songs.get(position);
         Intent intent = new Intent(this, SingleSongPlayerActivity.class);
         intent.putExtra(SingleSongPlayerActivity.SONG_POSITION_EXTRA_NAME, position);
         startActivity(intent);

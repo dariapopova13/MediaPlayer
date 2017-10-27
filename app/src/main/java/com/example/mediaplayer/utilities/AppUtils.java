@@ -23,7 +23,7 @@ public final class AppUtils {
 //    }
 
 //    public static void loadSongs(ContentResolver contentResolver) {
-//        DataUtils songContent = new DataUtils(contentResolver);
+//        StorageUtils songContent = new StorageUtils(contentResolver);
 //        songs = songContent.getSongList();
 //    }
 }
