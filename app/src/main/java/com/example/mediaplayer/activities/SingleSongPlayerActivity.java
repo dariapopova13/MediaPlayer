@@ -57,9 +57,9 @@ public class SingleSongPlayerActivity extends AppCompatActivity
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             MediaService.MusicBinder binder = (MediaService.MusicBinder) iBinder;
-            mediaService = binder.getService();
-            mediaService.setCurrentPosition(position);
-            mediaService.setCurrentPosition(position);
+//            mediaService = binder.getService();
+//            mediaService.setCurrentPosition(position);
+//            mediaService.setCurrentPosition(position);
             serviceBound = true;
         }
 

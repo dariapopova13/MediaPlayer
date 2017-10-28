@@ -1,4 +1,4 @@
-package com.example.mediaplayer.adapters;
+package com.example.mediaplayer.adapters.recycleview;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +34,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
     @Override
     public SongsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.instance_song_list, parent, false);
+                .inflate(R.layout.songs_fragment_recycle_view_instance, parent, false);
 
         return new SongsViewHolder(view);
     }

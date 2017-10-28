@@ -8,8 +8,8 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 
+import com.example.mediaplayer.data.Artist;
 import com.example.mediaplayer.data.Song;
-import com.example.mediaplayer.data.builder.SongBuilder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -24,79 +24,44 @@ import java.util.List;
 
 public final class StorageUtils {
 
-    private static final String STORAGE = "com.example.mediaplayer.STORAGE";
+    private static final String SONG_STORAGE = "com.example.mediaplayer.SONG_STORAGE";
+    private static final String ARTIST_STORAGE = "com.example.mediaplayer.ARTIST_STORAGE";
 
 
-    public static void storeData(Context context) {
+    private static void storeSongData(Context context) {
         List<Song> songs = initSongs(context);
+        storeData(context, songs, SONG_STORAGE);
+    }
+
+    private static void storeData(Context context, List songs, String name) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
         Gson gson = new Gson();
         String json = gson.toJson(songs);
-        editor.putString(STORAGE, json);
+        editor.putString(name, json);
         editor.apply();
-    }
-
-    private static List<Song> initSongs(Context context) {
-        ContentResolver musicResolver = context.getContentResolver();
-
-        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor musicCursor = musicResolver.query(musicUri, null, selection, null, sortOrder);
-
-        return getSongsData(musicCursor);
-    }
-
-    private static List<Song> getSongsData(Cursor musicCursor) {
-        List<Song> songList = new ArrayList<>();
-
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            int titleColumn = musicCursor.getColumnIndex(
-                    MediaStore.Audio.Media.TITLE);
-            int artistColumn = musicCursor.getColumnIndex(
-                    MediaStore.Audio.Media.ARTIST);
-            int albomColumn = musicCursor.getColumnIndex(
-                    MediaStore.Audio.Media.ALBUM);
-            int idColumn = musicCursor.getColumnIndex(
-                    MediaStore.Audio.Media._ID);
-            int durationColumn = musicCursor.getColumnIndex(
-                    MediaStore.Audio.Media.DURATION);
-            int dataColumn = musicCursor.getColumnIndex(
-                    MediaStore.Audio.Media.DATA);
-            do {
-                Song song = new SongBuilder()
-                        .setId(musicCursor.getLong(idColumn))
-                        .setAlbum(musicCursor.getString(albomColumn))
-                        .setArtist(musicCursor.getString(artistColumn))
-                        .setDuration(musicCursor.getInt(durationColumn))
-                        .setTitle(musicCursor.getString(titleColumn))
-                        .setData(musicCursor.getString(dataColumn))
-                        .createSong();
-
-                songList.add(song);
-            } while (musicCursor.moveToNext());
-
-        }
-        return songList;
     }
 
     public static void clearData(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
 
-        editor.remove(STORAGE);
+        editor.remove(SONG_STORAGE);
+        editor.remove(ARTIST_STORAGE);
         editor.apply();
     }
 
+
     public static void updateData(Context context) {
         clearData(context);
-        storeData(context);
+        storeSongData(context);
+        storeArtistData(context);
     }
 
     public static List<Song> getSongsData(Context context) {
+
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        String json = sp.getString(STORAGE, null);
+        String json = sp.getString(SONG_STORAGE, null);
         if (json != null) {
             Gson gson = new Gson();
             Type type = new TypeToken<List<Song>>() {
@@ -106,6 +71,90 @@ public final class StorageUtils {
         return null;
     }
 
+    public static void storeArtistData(Context context) {
+        List<Artist> artists = initArtists(context);
+        storeData(context, artists, ARTIST_STORAGE);
+    }
 
-    
+    private static List<Artist> initArtists(Context context) {
+        ContentResolver resolver = context.getContentResolver();
+
+        Uri artistUri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
+        String sortOrder = MediaStore.Audio.Artists.ARTIST + " ASC";
+        Cursor artistCursor = resolver.query(artistUri, null, null, null, sortOrder);
+
+        return getArtistData(artistCursor);
+    }
+
+    private static List<Artist> getArtistData(Cursor cursor) {
+        List<Artist> artists = new ArrayList<>();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int artistColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Artists.ARTIST);
+            int idColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Artists._ID);
+            Artist artist;
+            do {
+                artist = new Artist.Builder()
+                        .setId(cursor.getLong(idColumn))
+                        .setName(cursor.getString(artistColumn))
+                        .build();
+                artists.add(artist);
+            } while (cursor.moveToNext());
+        }
+
+        return artists;
+    }
+
+
+    private static List<Song> initSongs(Context context) {
+        ContentResolver resolver = context.getContentResolver();
+
+        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+        Cursor musicCursor = resolver.query(musicUri, null, selection, null, sortOrder);
+
+        return getSongsData(musicCursor);
+    }
+
+    private static List<Song> getSongsData(Cursor cursor) {
+        List<Song> songList = new ArrayList<>();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int titleColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media.TITLE);
+            int artistColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media.ARTIST);
+            int albomColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media.ALBUM);
+            int idColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media._ID);
+            int artistIdColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media.ARTIST_ID);
+            int durationColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media.DURATION);
+            int dataColumn = cursor.getColumnIndex(
+                    MediaStore.Audio.Media.DATA);
+            Song song;
+            do {
+                song = new Song.Builder()
+                        .setId(cursor.getLong(idColumn))
+                        .setAlbum(cursor.getString(albomColumn))
+                        .setArtist(cursor.getString(artistColumn))
+                        .setDuration(cursor.getInt(durationColumn))
+                        .setTitle(cursor.getString(titleColumn))
+                        .setData(cursor.getString(dataColumn))
+                        .setArtistId(cursor.getLong(artistIdColumn))
+                        .build();
+
+                songList.add(song);
+            } while (cursor.moveToNext());
+
+        }
+        return songList;
+    }
+
+
 }

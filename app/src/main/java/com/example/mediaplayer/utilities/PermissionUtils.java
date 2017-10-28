@@ -4,11 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Daria Popova on 07.10.17.
@@ -16,41 +14,31 @@ import java.util.List;
 
 public final class PermissionUtils {
 
-    public static final int MULTIPLE_PERMISSION_REQUEST = 0;
+    public static final int READ_EXTERNAL_STORAGE_PERMISSION = 1;
 
-    public static boolean verifyPermissions(int[] grantResults) {
-        if (grantResults.length < 1) {
-            return false;
-        }
-        for (int grantResult : grantResults) {
-            if (grantResult != PackageManager.PERMISSION_GRANTED)
-                return false;
-        }
-        return true;
-    }
 
-    public static boolean getPermission(Activity activity) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int readExternalPermission = ContextCompat.checkSelfPermission(activity.getApplicationContext(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE);
-
-            List<String> requiredPermisions = new ArrayList<>();
-            if (readExternalPermission != PackageManager.PERMISSION_GRANTED) {
-                requiredPermisions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public static boolean checkPermission(Activity activity, int permissionCode) {
+        String permission = null;
+        switch (permissionCode) {
+            case READ_EXTERNAL_STORAGE_PERMISSION: {
+                permission = Manifest.permission.READ_EXTERNAL_STORAGE;
             }
-
-            if (!requiredPermisions.isEmpty()) {
-                ActivityCompat.requestPermissions(activity, requiredPermisions.toArray(
-                        new String[requiredPermisions.size()]), MULTIPLE_PERMISSION_REQUEST);
-                return false;
-            } else return true;
         }
-        return false;
+
+        return permission != null &&
+                ContextCompat.checkSelfPermission(activity, permission)
+                        == PackageManager.PERMISSION_GRANTED;
+
     }
 
 
+    public static void getPermission(Activity activity) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
 
-
-
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READ_EXTERNAL_STORAGE_PERMISSION);
+        }
+    }
 }

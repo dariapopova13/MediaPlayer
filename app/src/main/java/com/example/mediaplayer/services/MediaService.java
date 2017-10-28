@@ -21,7 +21,10 @@ public class MediaService extends IntentService {
         super(name);
     }
 
-    
+
+    public void test(){
+//        MediaSource mediaSource = new
+    }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
@@ -35,3 +38,4 @@ public class MediaService extends IntentService {
         }
     }
 }
+
