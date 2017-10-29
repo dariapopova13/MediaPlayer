@@ -1,9 +1,6 @@
 package com.example.mediaplayer.activities;
 
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
@@ -18,11 +15,10 @@ import android.view.MenuItem;
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.adapters.fragment.TabPagerAdapter;
 import com.example.mediaplayer.fragments.SongFragment;
-import com.example.mediaplayer.utilities.PermissionUtils;
 import com.example.mediaplayer.utilities.StorageUtils;
 
 public class StartActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -36,32 +32,9 @@ public class StartActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         initViews();
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (!PermissionUtils.checkPermission(this, PermissionUtils.READ_EXTERNAL_STORAGE_PERMISSION)) {
-                PermissionUtils.getPermission(this);
-            } else {
-                setViewPagerContent();
-            }
-        }
+        setViewPagerContent();
     }
 
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PermissionUtils.READ_EXTERNAL_STORAGE_PERMISSION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    setViewPagerContent();
-                }
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     private void setViewPagerContent() {
         StorageUtils.updateData(this);
@@ -124,4 +97,6 @@ public class StartActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }

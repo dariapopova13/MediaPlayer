@@ -1,5 +1,12 @@
 package com.example.mediaplayer.utilities;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -8,8 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 public final class AppUtils {
 
-//    public static List<Song> songs;
-
     public static String getSongDuration(int duration) {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(duration);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) -
@@ -17,13 +22,17 @@ public final class AppUtils {
         return String.valueOf(minutes + ":" + (seconds > 10 ? seconds : "0" + seconds));
     }
 
+    public static String getUserAgent(Context context, String applicationName) {
+        String versionName;
+        try {
+            String packageName = context.getPackageName();
+            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+            versionName = info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            versionName = "?";
+        }
+        return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
+                + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
+    }
 
-//    public static void loadSongs(Context context) {
-//        loadSongs(context.getContentResolver());
-//    }
-
-//    public static void loadSongs(ContentResolver contentResolver) {
-//        StorageUtils songContent = new StorageUtils(contentResolver);
-//        songs = songContent.getSongList();
-//    }
 }

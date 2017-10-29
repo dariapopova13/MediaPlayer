@@ -11,7 +11,9 @@ import android.widget.TextView;
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.interfaces.RecycleViewListener;
+import com.example.mediaplayer.interfaces.StorageObserver;
 import com.example.mediaplayer.utilities.AppUtils;
+import com.example.mediaplayer.utilities.StorageUtils;
 
 import java.util.List;
 
@@ -19,7 +21,8 @@ import java.util.List;
  * Created by Daria Popova on 07.10.17.
  */
 
-public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.SongsViewHolder> {
+public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.SongsViewHolder>
+        implements StorageObserver.SongUpdate {
 
     private Context mContext;
     private List<Song> songs;
@@ -29,6 +32,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
         this.mContext = mContext;
         this.songs = songs;
         this.recycleViewListener = recycleViewListener;
+
     }
 
     @Override
@@ -54,6 +58,11 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
         });
     }
 
+    public void notifyAdapterDataSetChanged() {
+        songs = StorageUtils.getSongs(mContext);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return songs == null ? 0 : songs.size();
@@ -71,6 +80,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
 //        });
 //        popupMenu.show();
     }
+
 
     public class SongsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

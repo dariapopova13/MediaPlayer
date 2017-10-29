@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
+    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        tools:text="1000"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:layout_margin="5dp"
+        android:textSize="20dp"
+        android:id="@+id/songs_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/test_update"
+        android:text="Update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/songs_recycle_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-</RelativeLayout>
+</LinearLayout>

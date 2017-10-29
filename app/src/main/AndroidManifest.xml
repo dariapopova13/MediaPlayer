@@ -14,15 +14,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.StartActivity"
-            android:launchMode="singleTop">
+            android:name=".activities.SplashActivity"
+            android:theme="@style/AppTheme.SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.SingleSongPlayerActivity"/>
+        <activity
+            android:name=".activities.SingleSongPlayerActivity"
+            android:launchMode="singleTop">
+        </activity>
+        <activity android:name=".activities.StartActivity"/>
 
         <service
             android:name=".services.MediaService"

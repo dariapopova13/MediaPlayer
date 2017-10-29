@@ -1,5 +1,6 @@
 package com.example.mediaplayer.data;
 
+import android.net.Uri;
 import android.os.Parcel;
 
 
@@ -9,8 +10,6 @@ import android.os.Parcel;
 
 public class Song {
 
-
-
     private long id;
     private String title;
     private String album;
@@ -19,6 +18,10 @@ public class Song {
     private String data;
     private String albumCover;
     private long artistId;
+
+    public Uri getUri(){
+        return Uri.parse(data);
+    }
 
     private Song(long id, String title, String album, String artist,
                  int duration, String data, String albumCover, long artistId) {

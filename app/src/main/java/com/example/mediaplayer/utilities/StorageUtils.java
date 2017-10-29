@@ -2,18 +2,14 @@ package com.example.mediaplayer.utilities;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 
 import com.example.mediaplayer.data.Artist;
 import com.example.mediaplayer.data.Song;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.example.mediaplayer.interfaces.StorageObserver;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,57 +20,85 @@ import java.util.List;
 
 public final class StorageUtils {
 
-    private static final String SONG_STORAGE = "com.example.mediaplayer.SONG_STORAGE";
-    private static final String ARTIST_STORAGE = "com.example.mediaplayer.ARTIST_STORAGE";
+    private static List<Song> songs;
+    private static List<Artist> artists;
+    private static Song currentSong;
+    private static List<StorageObserver> observers;
 
-
-    private static void storeSongData(Context context) {
-        List<Song> songs = initSongs(context);
-        storeData(context, songs, SONG_STORAGE);
+    public static void addObserver(StorageObserver observer) {
+        if (observers == null)
+            observers = new ArrayList<>();
+        observers.add(observer);
     }
 
-    private static void storeData(Context context, List songs, String name) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sp.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(songs);
-        editor.putString(name, json);
-        editor.apply();
+    public static Song getCurrentSong() {
+        return currentSong;
+    }
+
+    public static List<Song> getSongs(Context context) {
+        if (songs == null)
+            songs = initSongs(context);
+        return songs;
+    }
+
+    public static List<Artist> getArtists(Context context) {
+        if (artists == null)
+            artists = initArtists(context);
+        return artists;
     }
 
     public static void clearData(Context context) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sp.edit();
-
-        editor.remove(SONG_STORAGE);
-        editor.remove(ARTIST_STORAGE);
-        editor.apply();
+        songs = null;
+        artists = null;
+//        currentSong = null;
     }
-
 
     public static void updateData(Context context) {
         clearData(context);
-        storeSongData(context);
-        storeArtistData(context);
+        songs = initSongs(context);
+        artists = initArtists(context);
+
+        notifyChanges();
     }
 
-    public static List<Song> getSongsData(Context context) {
-
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        String json = sp.getString(SONG_STORAGE, null);
-        if (json != null) {
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<Song>>() {
-            }.getType();
-            return gson.fromJson(json, type);
-        }
-        return null;
+    private static void notifyChanges() {
+        if (observers != null)
+            for (StorageObserver observer : observers) {
+                observer.update();
+            }
     }
 
-    public static void storeArtistData(Context context) {
-        List<Artist> artists = initArtists(context);
-        storeData(context, artists, ARTIST_STORAGE);
-    }
+//    public static List<Song> getSongsData(Context context) {
+//
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+//        String json = sp.getString(SONG_STORAGE, null);
+//        if (json != null) {
+//            Gson gson = new Gson();
+//            Type type = new TypeToken<List<Song>>() {
+//            }.getType();
+//            return gson.fromJson(json, type);
+//        }
+//        return null;
+//    }
+//
+//    public static void storeArtistData(Context context) {
+//        List<Artist> artists = initArtists(context);
+//        storeData(context, artists, ARTIST_STORAGE);
+//    }
+//
+//    private static void storeSongData(Context context) {
+//        List<Song> songs = initSongs(context);
+//        storeData(context, songs, SONG_STORAGE);
+//    }
+//
+//    private static void storeData(Context context, List songs, String name) {
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+//        SharedPreferences.Editor editor = sp.edit();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(songs);
+//        editor.putString(name, json);
+//        editor.apply();
+//    }
 
     private static List<Artist> initArtists(Context context) {
         ContentResolver resolver = context.getContentResolver();
@@ -106,7 +130,6 @@ public final class StorageUtils {
 
         return artists;
     }
-
 
     private static List<Song> initSongs(Context context) {
         ContentResolver resolver = context.getContentResolver();
@@ -155,6 +178,5 @@ public final class StorageUtils {
         }
         return songList;
     }
-
 
 }
