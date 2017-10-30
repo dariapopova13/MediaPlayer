@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.mediaplayer.R;
@@ -32,7 +31,6 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
         this.mContext = mContext;
         this.songs = songs;
         this.recycleViewListener = recycleViewListener;
-
     }
 
     @Override
@@ -87,7 +85,6 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
         public TextView songDuration;
         public TextView songTitle;
         public TextView songArtist;
-        public ImageView songCover;
         public TextView menu;
 
         public SongsViewHolder(View view) {
@@ -96,14 +93,13 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
             songDuration = (TextView) view.findViewById(R.id.song_duration);
             songTitle = (TextView) view.findViewById(R.id.song_title);
             songArtist = (TextView) view.findViewById(R.id.song_artist);
-            songCover = (ImageView) view.findViewById(R.id.song_cover);
             menu = (TextView) view.findViewById(R.id.item_song_menu);
             view.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            recycleViewListener.recyclerViewItemClicked(view, this.getAdapterPosition());
+            recycleViewListener.recyclerViewItemClicked(view, getAdapterPosition());
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.example.mediaplayer.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,15 +8,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.mediaplayer.R;
-import com.example.mediaplayer.activities.SingleSongPlayerActivity;
 import com.example.mediaplayer.adapters.recycleview.SongsListAdapter;
+import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.interfaces.RecycleViewListener;
 import com.example.mediaplayer.interfaces.StorageObserver;
+import com.example.mediaplayer.services.MediaService;
 import com.example.mediaplayer.utilities.StorageUtils;
+
+//import com.example.mediaplayer.activities.SingleSongPlayerActivity;
 
 /**
  * Created by Daria Popova on 28.10.17.
@@ -27,8 +27,6 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
 
     private RecyclerView songsRecycleView;
     private SongsListAdapter songsListAdapter;
-    private TextView countTextView;
-    private Button updateButton;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -38,12 +36,9 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id) {
-            case R.id.test_update: {
-                StorageUtils.updateData(getContext());
-            }
-        }
+
     }
+
 
     @Nullable
     @Override
@@ -51,7 +46,7 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.songs_fragment, container, false);
         createRecycleView(view);
-        StorageObserver.addObserver(this);
+        addObserver(this);
         return view;
     }
 
@@ -64,10 +59,6 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
         songsRecycleView.setAdapter(songsListAdapter);
         songsRecycleView.setLayoutManager(manager);
 
-        countTextView = (TextView) view.findViewById(R.id.songs_count);
-        countTextView.setText(String.valueOf(songsListAdapter.getItemCount()));
-        updateButton = (Button) view.findViewById(R.id.test_update);
-        updateButton.setOnClickListener(this);
     }
 
     public static SongFragment newInstance() {
@@ -79,14 +70,12 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
 
     @Override
     public void recyclerViewItemClicked(View view, int position) {
-        Intent intent = new Intent(getContext(), SingleSongPlayerActivity.class);
-        intent.putExtra(SingleSongPlayerActivity.SONG_POSITION_KEY, position);
-        startActivity(intent);
+        Song song = StorageUtils.getSongs(getContext()).get(position);
+        MediaService.MediaServiceCreator.playSong(getActivity().getApplicationContext(), song);
     }
 
     @Override
     public void update() {
         songsListAdapter.notifyAdapterDataSetChanged();
-        countTextView.setText(String.valueOf(songsListAdapter.getItemCount()));
     }
 }

@@ -5,9 +5,9 @@
 
     <item>
         <bitmap
+
             android:gravity="center"
             android:src="@drawable/start_image"/>
     </item>
-
 
 </layer-list>

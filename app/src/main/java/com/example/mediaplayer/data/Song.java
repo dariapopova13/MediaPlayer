@@ -2,13 +2,14 @@ package com.example.mediaplayer.data;
 
 import android.net.Uri;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 
 /**
  * Created by Daria Popova on 29.09.17.
  */
 
-public class Song {
+public class Song implements Parcelable {
 
     private long id;
     private String title;
@@ -37,16 +38,6 @@ public class Song {
     }
 
     public Song() {
-    }
-
-    protected Song(Parcel in) {
-        this.id = in.readLong();
-        this.title = in.readString();
-        this.album = in.readString();
-        this.artist = in.readString();
-        this.duration = in.readInt();
-        this.data = in.readString();
-        this.artistId = in.readLong();
     }
 
     public long getArtistId() {
@@ -175,4 +166,44 @@ public class Song {
             return this;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.title);
+        dest.writeString(this.album);
+        dest.writeString(this.artist);
+        dest.writeInt(this.duration);
+        dest.writeString(this.data);
+        dest.writeString(this.albumCover);
+        dest.writeLong(this.artistId);
+    }
+
+    protected Song(Parcel in) {
+        this.id = in.readLong();
+        this.title = in.readString();
+        this.album = in.readString();
+        this.artist = in.readString();
+        this.duration = in.readInt();
+        this.data = in.readString();
+        this.albumCover = in.readString();
+        this.artistId = in.readLong();
+    }
+
+    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel source) {
+            return new Song(source);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 }

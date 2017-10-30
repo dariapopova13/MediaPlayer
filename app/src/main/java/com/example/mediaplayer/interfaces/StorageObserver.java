@@ -10,12 +10,13 @@ public interface StorageObserver {
 
     void update();
 
-    static void addObserver(StorageObserver observer) {
+    default void addObserver(StorageObserver observer) {
         StorageUtils.addObserver(observer);
     }
 
 
-    public interface SongUpdate{
+    public interface SongUpdate {
+
         void notifyAdapterDataSetChanged();
     }
 }

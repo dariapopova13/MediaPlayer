@@ -31,6 +31,14 @@ public final class StorageUtils {
         observers.add(observer);
     }
 
+    public static void getArtistSongs(Artist artist) {
+        if (songs == null) return;
+        for (Song song : songs) {
+            if (song.getArtistId() == artist.getId())
+                artist.addSong(song);
+        }
+    }
+
     public static Song getCurrentSong() {
         return currentSong;
     }
@@ -127,8 +135,13 @@ public final class StorageUtils {
                 artists.add(artist);
             } while (cursor.moveToNext());
         }
-
+        closeCursor(cursor);
         return artists;
+    }
+
+    private static void closeCursor(Cursor cursor) {
+        if (cursor != null)
+            cursor.close();
     }
 
     private static List<Song> initSongs(Context context) {
@@ -176,6 +189,7 @@ public final class StorageUtils {
             } while (cursor.moveToNext());
 
         }
+        closeCursor(cursor);
         return songList;
     }
 

@@ -1,13 +1,18 @@
 package com.example.mediaplayer.utilities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
+import android.view.ViewGroup;
 
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 
 import java.util.concurrent.TimeUnit;
+
+import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by Daria Popova on 30.09.17.
@@ -35,4 +40,23 @@ public final class AppUtils {
                 + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
     }
 
+
+    public static void blurryBackgroud(Activity activity) {
+        ViewGroup viewGroup = (ViewGroup) activity.findViewById(android.R.id.content);
+        viewGroup.post(new Runnable() {
+            @Override
+            public void run() {
+                Blurry.with(activity)
+                        .radius(10)
+                        .sampling(10)
+                        .color(Color.argb(66, 255, 255, 12))
+                        .async()
+                        .animate()
+                        .onto(viewGroup);
+            }
+        });
+
+    }
+
+//    public static
 }

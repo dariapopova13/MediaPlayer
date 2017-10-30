@@ -21,17 +21,19 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.SingleSongPlayerActivity"
-            android:launchMode="singleTop">
-        </activity>
+
+
         <activity android:name=".activities.StartActivity"/>
 
         <service
-            android:name=".services.MediaService"
-            android:enabled="true"
-            android:exported="true">
-        </service>
+            android:name=".services.MediaService"/>
+
+        <activity
+            android:name=".activities.SpecificSongsActivity"
+            android:label="@string/title_activity_specific_songs"
+            android:theme="@style/AppTheme">
+        </activity>
+
 
     </application>
 

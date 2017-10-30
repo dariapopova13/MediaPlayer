@@ -1,5 +1,6 @@
 package com.example.mediaplayer.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +41,12 @@ public class Artist {
 
     public void setSongs(List<Song> songs) {
         this.songs = songs;
+    }
+
+    public void addSong(Song song) {
+        if (songs == null)
+            songs = new ArrayList<>();
+        songs.add(song);
     }
 
     public static class Builder {
