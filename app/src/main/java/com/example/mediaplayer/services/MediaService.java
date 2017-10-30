@@ -313,7 +313,6 @@ public class MediaService extends Service implements ExoPlayer.EventListener,
             new Thread(() -> {
                 Intent intent = new Intent(context, MediaService.class);
                 intent.putExtra(CURRENT_SONG_KEY, song);
-
                 context.startService(intent);
                 IS_CREATED = true;
             }).start();
