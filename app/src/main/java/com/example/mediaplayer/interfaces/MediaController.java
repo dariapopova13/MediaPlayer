@@ -13,6 +13,7 @@ public interface MediaController {
 
     public static List<MediaController> controllers = new ArrayList<>();
 
+
     default void addMediaController(MediaController mediaController) {
         controllers.add(mediaController);
     }

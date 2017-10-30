@@ -33,8 +33,6 @@
             android:label="@string/title_activity_specific_songs"
             android:theme="@style/AppTheme">
         </activity>
-
-
     </application>
 
 </manifest>
