@@ -23,15 +23,14 @@
         </activity>
 
 
-        <activity android:name=".activities.StartActivity"/>
+        <activity android:launchMode="singleTop" android:name=".activities.StartActivity"/>
 
         <service
             android:name=".services.MediaService"/>
 
         <activity
             android:name=".activities.SpecificSongsActivity"
-            android:label="@string/title_activity_specific_songs"
-            android:theme="@style/AppTheme">
+            android:label="@string/title_activity_specific_songs">
         </activity>
 
 
