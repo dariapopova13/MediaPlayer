@@ -1,5 +1,9 @@
 package com.example.mediaplayer.data;
 
+import android.content.Context;
+
+import com.example.mediaplayer.utilities.StorageUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +76,14 @@ public class Artist {
 
         public Artist build() {
             return new Artist(id, name, songs);
+        }
+    }
+
+    public static void getArtistSongs(Context context, Artist artist) {
+        if (StorageUtils.getSongs(context) == null) return;
+        for (Song song : StorageUtils.getSongs(context)) {
+            if (song.getArtistId() == artist.getId())
+                artist.addSong(song);
         }
     }
 }

@@ -12,10 +12,13 @@ import android.view.ViewGroup;
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.adapters.recycleview.SongsListAdapter;
 import com.example.mediaplayer.data.Song;
+import com.example.mediaplayer.interfaces.MediaController;
 import com.example.mediaplayer.interfaces.RecycleViewListener;
 import com.example.mediaplayer.interfaces.StorageObserver;
 import com.example.mediaplayer.services.MediaService;
 import com.example.mediaplayer.utilities.StorageUtils;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 //import com.example.mediaplayer.activities.SingleSongPlayerActivity;
 
@@ -23,10 +26,12 @@ import com.example.mediaplayer.utilities.StorageUtils;
  * Created by Daria Popova on 28.10.17.
  */
 
-public class SongFragment extends Fragment implements RecycleViewListener, StorageObserver, View.OnClickListener {
+public class SongFragment extends Fragment implements RecycleViewListener,
+        StorageObserver, View.OnClickListener, MediaController {
 
     private RecyclerView songsRecycleView;
     private SongsListAdapter songsListAdapter;
+    private SimpleExoPlayerView simpleExoPlayerView;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -34,9 +39,13 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
     }
 
     @Override
+    public void receivePlayer(SimpleExoPlayer exoPlayer) {
+        simpleExoPlayerView.setPlayer(exoPlayer);
+    }
+
+    @Override
     public void onClick(View v) {
         int id = v.getId();
-
     }
 
 
@@ -44,13 +53,14 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        addMediaController(this);
         View view = inflater.inflate(R.layout.songs_fragment, container, false);
-        createRecycleView(view);
+        initViews(view);
         addObserver(this);
         return view;
     }
 
-    private void createRecycleView(View view) {
+    private void initViews(View view) {
         songsRecycleView = (RecyclerView) view.findViewById(R.id.songs_recycle_view);
 
         songsListAdapter = new SongsListAdapter(getContext(), StorageUtils.getSongs(getContext()), this);
@@ -59,6 +69,7 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
         songsRecycleView.setAdapter(songsListAdapter);
         songsRecycleView.setLayoutManager(manager);
 
+        simpleExoPlayerView = (SimpleExoPlayerView) view.findViewById(R.id.simple_exo_player_view);
     }
 
     public static SongFragment newInstance() {
@@ -71,7 +82,7 @@ public class SongFragment extends Fragment implements RecycleViewListener, Stora
     @Override
     public void recyclerViewItemClicked(View view, int position) {
         Song song = StorageUtils.getSongs(getContext()).get(position);
-        MediaService.MediaServiceCreator.playSong(getActivity().getApplicationContext(), song);
+        MediaService.MediaServiceCreator.playSong(getActivity().getBaseContext(), song);
     }
 
     @Override

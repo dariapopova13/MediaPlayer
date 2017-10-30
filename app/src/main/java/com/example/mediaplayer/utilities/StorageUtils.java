@@ -2,14 +2,19 @@ package com.example.mediaplayer.utilities;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 
 import com.example.mediaplayer.data.Artist;
 import com.example.mediaplayer.data.Song;
 import com.example.mediaplayer.interfaces.StorageObserver;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +25,7 @@ import java.util.List;
 
 public final class StorageUtils {
 
+    private static final String SONG_POSITION_KEY = "song_position";
     private static List<Song> songs;
     private static List<Artist> artists;
     private static Song currentSong;
@@ -31,12 +37,36 @@ public final class StorageUtils {
         observers.add(observer);
     }
 
-    public static void getArtistSongs(Artist artist) {
-        if (songs == null) return;
-        for (Song song : songs) {
-            if (song.getArtistId() == artist.getId())
-                artist.addSong(song);
-        }
+    private static final String CURRENT_SONG_KEY = "current_song";
+
+    public static void saveSongWithPosition(Context context, Song song, int position) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+
+        String json = new Gson().toJson(song);
+        editor.putInt(SONG_POSITION_KEY, position);
+        editor.putString(CURRENT_SONG_KEY, json);
+        editor.apply();
+    }
+
+    public static void saveSong(Context context, Song song) {
+        saveSongWithPosition(context, song, 0);
+    }
+
+    public static int getSongPosition(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        int position = sp.getInt(SONG_POSITION_KEY, 0);
+        return position;
+    }
+
+    public static Song getCurrentSong(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        String json = sp.getString(CURRENT_SONG_KEY, null);
+        if (json == null) return null;
+        Type type = new TypeToken<Song>() {
+        }.getType();
+        Song song = new Gson().fromJson(json, type);
+        return song;
     }
 
     public static Song getCurrentSong() {

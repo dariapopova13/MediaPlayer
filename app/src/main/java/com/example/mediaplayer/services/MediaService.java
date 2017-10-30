@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -19,6 +18,8 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.activities.StartActivity;
 import com.example.mediaplayer.data.Song;
+import com.example.mediaplayer.interfaces.MediaController;
+import com.example.mediaplayer.interfaces.MediaControllerListener;
 import com.example.mediaplayer.interfaces.StorageObserver;
 import com.example.mediaplayer.utilities.AppUtils;
 import com.example.mediaplayer.utilities.StorageUtils;
@@ -27,58 +28,66 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
-public class MediaService extends Service implements ExoPlayer.EventListener, StorageObserver {
+public class MediaService extends Service implements ExoPlayer.EventListener,
+        StorageObserver, MediaControllerListener {
 
     public static final String CURRENT_SONG_KEY = "current_song";
 
+
     private static final String TAG = MediaService.class.getSimpleName();
-    private MusicBinder binder = new MusicBinder();
     private List<Song> songs;
-    private ExoPlayer exoPlayer;
+    private SimpleExoPlayer exoPlayer;
     private MediaSessionCompat mediaSession;
-    private SimpleExoPlayerView exoPlayerView;
+
     private NotificationManager notificationManager;
-    private List<Song> orderSongs;
     private Song currentSong;
-    private MediaSource mediaSource;
     private PlaybackStateCompat.Builder stateBuilder;
     private BroadcastReceiver receiver;
+    private List<MediaSource> mediaSourceList;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        addObserver(this);
+        registerLocalReceiver();
         initializeMediaSession();
         initializePlayer();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        addObserver(this);
-        registerLocalReceiver();
+
+        setData(intent);
+        preparePlayer();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void setData(Intent intent) {
         songs = StorageUtils.getSongs(this);
         currentSong = intent.getParcelableExtra(CURRENT_SONG_KEY);
         if (currentSong == null)
             currentSong = songs.get(0);
-        preparePlayer();
-        return super.onStartCommand(intent, flags, startId);
     }
 
     private void registerLocalReceiver() {
@@ -107,7 +116,7 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
     }
 
     private void showNotification(PlaybackStateCompat state) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "666");
         int icon;
 
         String playPause;
@@ -135,7 +144,7 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
                         this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
         Intent intent = new Intent(this, StartActivity.class);
-//        intent.putExtra("", position);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this, 0, intent, 0);
 
@@ -144,45 +153,70 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_music_player)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .addAction(skipToPreviousAction)
                 .addAction(playPauseAction)
                 .addAction(skipToNextAction)
-                .addAction(skipToPreviousAction)
                 .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(mediaSession.getSessionToken())
-                        .setShowActionsInCompactView(0, 1));
+                        .setShowActionsInCompactView(1, 2));
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, builder.build());
+        startForeground(666, builder.build());
     }
 
     private void initializePlayer() {
         if (exoPlayer == null) {
             TrackSelector trackSelector = new DefaultTrackSelector();
+//            trackSelector = new DefaultTrackSelector()
             LoadControl loadControl = new DefaultLoadControl();
             exoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl);
 
             exoPlayer.addListener(this);
+            sendPlayer();
         }
     }
 
     private void preparePlayer() {
         exoPlayer.stop();
 
-        String userAgent = AppUtils.getUserAgent(this, getString(R.string.app_name));
-        DataSource.Factory factory = new DefaultDataSourceFactory(
-                this, userAgent, new DefaultBandwidthMeter());
-        mediaSource = new ExtractorMediaSource(currentSong.getUri(),
-                factory, new DefaultExtractorsFactory(), null, null);
-
+        ConcatenatingMediaSource mediaSource = createMediaSources();
         exoPlayer.prepare(mediaSource);
         exoPlayer.setPlayWhenReady(true);
     }
+
+    private ConcatenatingMediaSource createMediaSources() {
+
+        String userAgent = AppUtils.getUserAgent(this, getString(R.string.app_name));
+        DataSource.Factory factory = new DefaultDataSourceFactory(
+                this, userAgent, new DefaultBandwidthMeter());
+
+        if (mediaSourceList == null) {
+            mediaSourceList = new ArrayList<>();
+            for (Song song : songs) {
+                if (song.getId() != currentSong.getId()) {
+                    MediaSource source1 = new ExtractorMediaSource(song.getUri(), factory,
+                            new DefaultExtractorsFactory(), null, null);
+                    mediaSourceList.add(source1);
+                }
+            }
+        }
+        Collections.shuffle(mediaSourceList);
+        MediaSource source = new ExtractorMediaSource(currentSong.getUri(), factory,
+                new DefaultExtractorsFactory(), null, null);
+
+        mediaSourceList.add(0, source);
+
+        MediaSource[] mediaSources = new MediaSource[mediaSourceList.size()];
+        return new ConcatenatingMediaSource(mediaSourceList.toArray(mediaSources));
+    }
+
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
@@ -237,9 +271,11 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
 
     }
 
-    private void playSong(Song song) {
-        currentSong = song;
-        preparePlayer();
+    private void playNewSong(Song song) {
+        if (song != null) {
+            currentSong = song;
+            preparePlayer();
+        }
     }
 
     @Override
@@ -247,6 +283,12 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
         songs = StorageUtils.getSongs(this);
     }
 
+    @Override
+    public void sendPlayer() {
+        for (MediaController controller : MediaController.controllers) {
+            controller.receivePlayer(exoPlayer);
+        }
+    }
 
     public static class MediaServiceCreator {
 
@@ -268,22 +310,13 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
         }
 
         private static void createService(Context context, Song song) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent(context, MediaService.class);
-                    intent.putExtra(CURRENT_SONG_KEY, song);
-                    context.startService(intent);
-                    IS_CREATED = true;
-                }
+            new Thread(() -> {
+                Intent intent = new Intent(context, MediaService.class);
+                intent.putExtra(CURRENT_SONG_KEY, song);
+
+                context.startService(intent);
+                IS_CREATED = true;
             }).start();
-        }
-    }
-
-    public class MusicBinder extends Binder {
-
-        public MediaService getService() {
-            return MediaService.this;
         }
     }
 
@@ -318,16 +351,14 @@ public class MediaService extends Service implements ExoPlayer.EventListener, St
         }
     }
 
-    public class MediaBrodcastReciever extends BroadcastReceiver {
+    public class MediaBrodcastReciever extends MediaButtonReceiver {
 
         public static final String PLAY_ANOTHER_SONG_ACTION = "com.example.mediaplayer.PLAY_ANOTHER_SONG_ACTION";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             Song song = intent.getParcelableExtra(CURRENT_SONG_KEY);
-            if (song != null) {
-                playSong(song);
-            }
+            playNewSong(song);
         }
     }
 
