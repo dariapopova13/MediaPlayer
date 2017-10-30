@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.mediaplayer.R;
 import com.example.mediaplayer.adapters.recycleview.SongsListAdapter;
@@ -32,6 +33,7 @@ public class SongFragment extends Fragment implements RecycleViewListener,
     private RecyclerView songsRecycleView;
     private SongsListAdapter songsListAdapter;
     private SimpleExoPlayerView simpleExoPlayerView;
+    private Button stopServiceButton;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -46,6 +48,11 @@ public class SongFragment extends Fragment implements RecycleViewListener,
     @Override
     public void onClick(View v) {
         int id = v.getId();
+        switch (id){
+            case R.id.stop_service:{
+                MediaService.MediaServiceCreator.stopService(getActivity().getBaseContext());
+            }
+        }
     }
 
 
@@ -70,6 +77,8 @@ public class SongFragment extends Fragment implements RecycleViewListener,
         songsRecycleView.setLayoutManager(manager);
 
         simpleExoPlayerView = (SimpleExoPlayerView) view.findViewById(R.id.simple_exo_player_view);
+        stopServiceButton = (Button) view.findViewById(R.id.stop_service);
+        stopServiceButton.setOnClickListener(this);
     }
 
     public static SongFragment newInstance() {

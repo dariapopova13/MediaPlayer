@@ -317,6 +317,11 @@ public class MediaService extends Service implements ExoPlayer.EventListener,
                 IS_CREATED = true;
             }).start();
         }
+
+        public static void stopService(Context context) {
+            Intent intent = new Intent(context, MediaService.class);
+            context.stopService(intent);
+        }
     }
 
     private class MediaServiceCallback extends MediaSessionCompat.Callback {
