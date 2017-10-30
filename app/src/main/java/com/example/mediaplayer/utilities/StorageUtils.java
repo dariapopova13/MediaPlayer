@@ -76,38 +76,6 @@ public final class StorageUtils {
             }
     }
 
-//    public static List<Song> getSongsData(Context context) {
-//
-//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-//        String json = sp.getString(SONG_STORAGE, null);
-//        if (json != null) {
-//            Gson gson = new Gson();
-//            Type type = new TypeToken<List<Song>>() {
-//            }.getType();
-//            return gson.fromJson(json, type);
-//        }
-//        return null;
-//    }
-//
-//    public static void storeArtistData(Context context) {
-//        List<Artist> artists = initArtists(context);
-//        storeData(context, artists, ARTIST_STORAGE);
-//    }
-//
-//    private static void storeSongData(Context context) {
-//        List<Song> songs = initSongs(context);
-//        storeData(context, songs, SONG_STORAGE);
-//    }
-//
-//    private static void storeData(Context context, List songs, String name) {
-//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-//        SharedPreferences.Editor editor = sp.edit();
-//        Gson gson = new Gson();
-//        String json = gson.toJson(songs);
-//        editor.putString(name, json);
-//        editor.apply();
-//    }
-
     private static List<Artist> initArtists(Context context) {
         ContentResolver resolver = context.getContentResolver();
 
